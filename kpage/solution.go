@@ -12,10 +12,11 @@ import (
 // Solution represents a solution of a kPage problem
 type Solution struct {
 	Pages     uint
-	Edges     []*Edge
-	vPosition []uint
-	Order     []uint
 	Crossings uint
+	Vertex    uint
+	Edges     []*Edge
+	Order     []uint
+	vPosition []uint
 	adj       []*list.List
 }
 
@@ -97,9 +98,18 @@ DSL:
 }
 
 // AssignPages iterates over all the edges an assign on page to that edge
-func (s *Solution) AssignPages() uint {
+func (s *Solution) AssignPages() {
 
-	var u, v, p, q, cross uint
+	// sort.Slice(s.Edges, func(i, j int) bool {
+	// 	// This function is called by the function as Less, but we are insted using as More so we use ">" insted of "<"
+	// 	return math.Abs(float64(s.vPosition[s.Edges[i].Src]-s.vPosition[s.Edges[i].Dst])) > math.Abs(float64(s.vPosition[s.Edges[j].Src]-s.vPosition[s.Edges[j].Dst]))
+	// })
+
+	heapSort(s)
+
+	var u, v, p, q uint
+
+	s.Crossings = 0
 
 	var bestCross, currCross, page uint
 
@@ -138,12 +148,11 @@ func (s *Solution) AssignPages() uint {
 
 		}
 		s.Edges[i].Page = page
-		cross += bestCross
+		s.Crossings += bestCross
 
 	}
 
 	// s.CalculateCrossings()
-	return cross
 }
 
 // CalculateCrossings erase the previus Crossings value and recalculate it from zero
@@ -196,4 +205,19 @@ func (s *Solution) Copy() (*Solution, error) {
 	copy(sCopy.vPosition, s.vPosition)
 
 	return sCopy, err
+}
+
+// Swap 2 values based on s.Order value
+func (s *Solution) Swap(a, b uint) {
+	s.vPosition[s.Order[a]], s.vPosition[s.Order[b]], s.Order[a], s.Order[b] = s.vPosition[s.Order[b]], s.vPosition[s.Order[a]], s.Order[b], s.Order[a]
+}
+
+// ResetFrom erase all the vertex order starting from index and do rdfs to reordenate
+func (s *Solution) ResetFrom(index uint) error {
+	for i := index; i < s.Vertex+1; i++ {
+		s.vPosition[s.Order[i]] = 0
+	}
+
+	err := s.OrderVertexes(index)
+	return err
 }

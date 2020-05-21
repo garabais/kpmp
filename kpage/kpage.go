@@ -21,6 +21,7 @@ func Solve(edges []*Edge, maxVertexNo, pages uint) (*Solution, error) {
 	vpos := make([]uint, maxVertexNo+1)
 
 	s := &Solution{
+		Vertex:    maxVertexNo,
 		Pages:     pages,
 		Edges:     edges,
 		Order:     order,
@@ -29,14 +30,14 @@ func Solve(edges []*Edge, maxVertexNo, pages uint) (*Solution, error) {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	s.Order[1] = uint(rand.Intn(int(maxVertexNo)) + 1)
+	s.Order[1] = uint(rand.Intn(int(s.Vertex)) + 1)
 
 	err := s.OrderVertexes(1)
 	if err != nil {
 		return nil, err
 	}
 
-	s.Crossings = s.AssignPages()
+	s.AssignPages()
 
 	return s, nil
 }
