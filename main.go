@@ -14,8 +14,8 @@ import (
 )
 
 var maxIter, pages int
-var firstLine, input, output string
-var timer bool
+var firstLine, input, output, csv string
+var stats bool
 
 func main() {
 	// Defining flags to parse
@@ -23,7 +23,8 @@ func main() {
 	flag.IntVar(&pages, "k", 0, "Sets the number of pages in the problem")
 	flag.StringVar(&input, "i", "", "Path to the instance of the graph (required)")
 	flag.StringVar(&output, "o", "", "Sets the output of the solution, if file alredy exist file is truncated (Default: stdout)")
-	flag.BoolVar(&timer, "t", false, "Measure the time of the algoritm(time is displayed in stderr)")
+	flag.StringVar(&csv, "c", "", "Appends or creates to a file stats in the form 'file comment,pages,termination condition,time in seconds,crossings'")
+	flag.BoolVar(&stats, "s", false, "Write to stdout stats in a human readable format")
 
 	flag.Parse()
 
@@ -80,12 +81,23 @@ func main() {
 
 	// If requiered print exec time
 	elapsed := time.Since(start)
-	if timer {
-		log.Printf("Execution time %s", elapsed)
-	}
 
 	// Print solution
 	printSolution(out, s)
+
+	if csv != "" {
+		csvf, err := os.OpenFile(csv, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer csvf.Close()
+
+		fmt.Fprintf(csvf, "%v,%v,%v,%f,%v\n", firstLine, s.Pages, maxIter, elapsed.Seconds(), s.Crossings)
+	}
+
+	if stats {
+		fmt.Printf("%v - %v Pages - Termination Condition: %v - Execution Time: %v  - Crossings: %v\n", firstLine, s.Pages, maxIter, elapsed, s.Crossings)
+	}
 }
 
 func solve(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
@@ -119,7 +131,6 @@ func solve(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
 
 		// ApplyAcceptanceCriterion
 		if sp.Crossings < s.Crossings {
-			// fmt.Println("hello", s.Crossings, sp.Crossings, sp.Crossings < s.Crossings)
 			s = sp
 			i = 0
 		}
