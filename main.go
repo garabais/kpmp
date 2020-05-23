@@ -78,7 +78,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// if requiered print exec time
+	// If requiered print exec time
 	elapsed := time.Since(start)
 	if timer {
 		log.Printf("Execution time %s", elapsed)
@@ -119,6 +119,7 @@ func solve(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
 
 		// ApplyAcceptanceCriterion
 		if sp.Crossings < s.Crossings {
+			// fmt.Println("hello", s.Crossings, sp.Crossings, sp.Crossings < s.Crossings)
 			s = sp
 			i = 0
 		}
@@ -128,12 +129,14 @@ func solve(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
 }
 
 func generateInitialSolution(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
+	// Read the vertex number and the number of edges
 	var v, e, src, dst uint
 	_, err := fmt.Fscanln(in, &v, &v, &e)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create a slice of edges pointers and create all the edges
 	edg := make([]*kpage.Edge, e)
 
 	for i := uint(0); i < e; i++ {
@@ -146,6 +149,7 @@ func generateInitialSolution(in io.Reader, out io.Writer, k int) (*kpage.Solutio
 		edg[i] = kpage.NewEdge(src, dst)
 	}
 
+	// Solve for the first time and check for error
 	s, err := kpage.Solve(edg, v, uint(k))
 
 	if err != nil {
@@ -156,7 +160,6 @@ func generateInitialSolution(in io.Reader, out io.Writer, k int) (*kpage.Solutio
 }
 
 func localMinimum(s *kpage.Solution) (*kpage.Solution, error) {
-
 	// Select a random vertex position
 	rand.Seed(time.Now().UTC().UnixNano())
 	i := uint(rand.Intn(int(s.Vertex)) + 1)
@@ -180,9 +183,8 @@ func localMinimum(s *kpage.Solution) (*kpage.Solution, error) {
 		sc.AssignPages()
 
 		// If the solution is better write it to the best
-		if sc.Crossings > s.Crossings {
+		if sc.Crossings < s.Crossings {
 			temp, err := sc.Copy()
-
 			if err != nil {
 				return nil, err
 			}
@@ -199,7 +201,7 @@ func localMinimum(s *kpage.Solution) (*kpage.Solution, error) {
 }
 
 func pertubation(s *kpage.Solution) (*kpage.Solution, error) {
-
+	// Create a copy of the solution the make the perturbation without affecting the previus solution
 	sc, err := s.Copy()
 
 	if err != nil {
@@ -210,13 +212,14 @@ func pertubation(s *kpage.Solution) (*kpage.Solution, error) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	i := uint(rand.Intn(int(s.Vertex-2)) + 2)
 
+	// Make rdfs from to all the vertexes that follows the i vertex using the vertex i as root
 	sc.ResetFrom(i)
-	// err = sc.OrderVertexes(i)
 
 	if err != nil {
 		return nil, err
 	}
 
+	// Reassing the pages using the new layout
 	sc.AssignPages()
 
 	return sc, nil

@@ -10,16 +10,19 @@ import (
 // returns a posible solution to the problem
 func Solve(edges []*Edge, maxVertexNo, pages uint) (*Solution, error) {
 
+	// Check that all the edges are valid
 	for _, e := range edges {
-		if e.Src > maxVertexNo || e.Dst > maxVertexNo {
+		if e.Src > maxVertexNo || e.Dst > maxVertexNo || e.Src == 0 || e.Dst == 0 {
 			return nil, fmt.Errorf("Edge source or destination outise of vertex range")
 		}
 
 	}
 
+	// Creates slices with one more to use the vertexes in base 1
 	order := make([]uint, maxVertexNo+1)
 	vpos := make([]uint, maxVertexNo+1)
 
+	// Create the solution struct
 	s := &Solution{
 		Vertex:    maxVertexNo,
 		Pages:     pages,
@@ -28,8 +31,10 @@ func Solve(edges []*Edge, maxVertexNo, pages uint) (*Solution, error) {
 		vPosition: vpos,
 	}
 
+	// Change the random seed to ensure randomness
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	// assign to the first position in the order a random vertex and order the other ones
 	s.Order[1] = uint(rand.Intn(int(s.Vertex)) + 1)
 
 	err := s.OrderVertexes(1)
@@ -37,6 +42,7 @@ func Solve(edges []*Edge, maxVertexNo, pages uint) (*Solution, error) {
 		return nil, err
 	}
 
+	// Assign pages to all the edges of the solution
 	s.AssignPages()
 
 	return s, nil

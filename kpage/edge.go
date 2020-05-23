@@ -6,21 +6,14 @@ import (
 
 // Edge keeps the necesary information to keep track of and edge and in which page it is
 type Edge struct {
-	Src  uint
-	Dst  uint
-	Page uint
+	Src  uint // Source vertex of the edge
+	Dst  uint // Destination vertex of the edge
+	Page uint // Page where the edge is assign
 }
 
-func (e *Edge) contains(a, b uint) bool {
-	return a == e.Src || a == e.Dst || b == e.Src || b == e.Dst
-}
-
+// String implements stringer interface to print and edge using fmt
 func (e *Edge) String() string {
 	return fmt.Sprintf("%v %v %v", e.Src, e.Dst, e.Page)
-}
-
-func (e *Edge) equals(a, b uint) bool {
-	return a == e.Src && b == e.Dst || b == e.Src && a == e.Dst
 }
 
 // NewEdge creates an edge and return a pointer to it
@@ -28,11 +21,10 @@ func NewEdge(src, dst uint) *Edge {
 	return &Edge{Src: src, Dst: dst, Page: 0}
 }
 
-func (e *Edge) otherOne(n uint) (uint, error) {
+// otherOne recive one of the a number of vertex and if the given vertex is part of the edge returns the other vertex
+func (e *Edge) otherOne(n uint) uint {
 	if e.Src == n {
-		return e.Dst, nil
-	} else if e.Dst == n {
-		return e.Src, nil
+		return e.Dst
 	}
-	return 0, fmt.Errorf("value not in edge")
+	return e.Src
 }

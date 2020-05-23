@@ -1,38 +1,41 @@
 package kpage
 
-import "math"
-
+// heap is used to make a heap in the solution edges
 type heap struct {
-	s        *Solution
-	heapSize int
+	s        *Solution // Pointer to the solution to acces the *edges slice and the position of the vertexes
+	heapSize int       // Current size of the heap
 }
 
 func buildHeap(sol *Solution) heap {
 	h := heap{s: sol, heapSize: len(sol.Edges)}
-	for i := len(sol.Edges) / 2; i >= 0; i-- {
-		h.heapify(i)
+	for i := 1 + uint(len(sol.Edges))/2; i > 0; i-- {
+		h.heapify(i - 1)
 	}
 	return h
 }
 
-func (h heap) heapify(i int) {
-	l, r := 2*i+1, 2*i+2
-	max := i
+func (h *heap) heapify(i uint) {
+	var l, r, max uint
 
-	if l < h.size() && math.Abs(float64(h.s.vPosition[h.s.Edges[l].Src]-h.s.vPosition[h.s.Edges[l].Dst])) > math.Abs(float64(h.s.vPosition[h.s.Edges[max].Src]-h.s.vPosition[h.s.Edges[max].Dst])) {
+	l, r = 2*i+1, 2*i+2
+	max = i
+
+	// This compares the length of the edge using the position in the solution to find th bigger one
+	// This is normaly to find the bigger one but in this case we want the edges order from biggest lo smallest
+	if l < h.size() && h.s.getEdgeLength(l) < h.s.getEdgeLength(max) {
 		max = l
 	}
-	if r < h.size() && math.Abs(float64(h.s.vPosition[h.s.Edges[r].Src]-h.s.vPosition[h.s.Edges[r].Dst])) > math.Abs(float64(h.s.vPosition[h.s.Edges[max].Src]-h.s.vPosition[h.s.Edges[max].Dst])) {
+	if r < h.size() && h.s.getEdgeLength(r) < h.s.getEdgeLength(max) {
 		max = r
 	}
-	//log.Printf("MaxHeapify(%v): l,r=%v,%v; max=%v\t%v\n", i, l, r, max, h.slice)
+
 	if max != i {
 		h.s.Edges[i], h.s.Edges[max] = h.s.Edges[max], h.s.Edges[i]
 		h.heapify(max)
 	}
 }
 
-func (h heap) size() int { return h.heapSize }
+func (h *heap) size() uint { return uint(h.heapSize) }
 
 func heapSort(slice *Solution) {
 	h := buildHeap(slice)
