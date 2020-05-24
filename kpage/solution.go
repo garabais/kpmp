@@ -235,3 +235,37 @@ func (s *Solution) getEdgeLength(index uint) uint {
 	}
 	return s.vPosition[s.Edges[index].Src] - s.vPosition[s.Edges[index].Dst]
 }
+
+// CalculateCrossings erase the previus Crossings value and recalculate it from zero
+func (s *Solution) CalculateCrossings() uint {
+	cross := uint(0)
+
+	var u, v, p, q uint
+
+	for i := 0; i < len(s.Edges); i++ {
+
+		if s.vPosition[s.Edges[i].Src] < s.vPosition[s.Edges[i].Dst] {
+			u, v = s.vPosition[s.Edges[i].Src], s.vPosition[s.Edges[i].Dst]
+		} else {
+			v, u = s.vPosition[s.Edges[i].Src], s.vPosition[s.Edges[i].Dst]
+		}
+
+		for j := i + 1; j < len(s.Edges); j++ {
+			if s.Edges[i].Page == s.Edges[j].Page {
+
+				if s.vPosition[s.Edges[j].Src] < s.vPosition[s.Edges[j].Dst] {
+					p, q = s.vPosition[s.Edges[j].Src], s.vPosition[s.Edges[j].Dst]
+				} else {
+					q, p = s.vPosition[s.Edges[j].Src], s.vPosition[s.Edges[j].Dst]
+				}
+
+				if u < p && p < v && v < q || p < u && u < q && q < v {
+					cross++
+				}
+			}
+
+		}
+	}
+
+	return cross
+}
