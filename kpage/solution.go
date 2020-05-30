@@ -116,7 +116,7 @@ DFS:
 }
 
 // AssignPages iterates over all the edges an assign on page to that edge
-func (s *Solution) AssignPages() {
+func (s *Solution) AssignPages(limit uint) {
 
 	// First sort the edges in decreasing order using heapsort
 	heapSort(s)
@@ -184,6 +184,11 @@ func (s *Solution) AssignPages() {
 		// Once the best page was found assing it to the edge and increase the number of crossings
 		s.Edges[i].Page = page
 		s.Crossings += bestCross
+
+		// If the limit is already exceeded dont calculate the remainig edges
+		if s.Crossings > limit {
+			return
+		}
 
 	}
 
