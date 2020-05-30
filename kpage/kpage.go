@@ -43,7 +43,7 @@ func Solve(edges []*Edge, maxVertexNo, pages uint) (*Solution, error) {
 	}
 
 	// Assign pages to all the edges of the solution
-	s.AssignPages()
+	s.AssignPages(^uint(0))
 
 	return s, nil
 }

@@ -130,9 +130,17 @@ func solve(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
 		}
 
 		// ApplyAcceptanceCriterion
-		if sp.Crossings < s.Crossings {
+		if sp.Crossings <= s.Crossings {
 			s = sp
-			i = 0
+
+			// If iterator is set to 0 it may cause a loop because in late stages of the algorithm is is common that the best permutation has the same number of crossings
+			if sp.Crossings != s.Crossings {
+				i = 0
+			}
+			// If found an optimal solution stop searching others
+			if s.Crossings == 0 {
+				break
+			}
 		}
 	}
 
@@ -191,10 +199,10 @@ func localMinimum(s *kpage.Solution) (*kpage.Solution, error) {
 		sc.Swap(i, j)
 
 		// Recalculate the maximum crossings and reasing pages to all the edges
-		sc.AssignPages()
+		sc.AssignPages(s.Crossings)
 
 		// If the solution is better write it to the best
-		if sc.Crossings < s.Crossings {
+		if sc.Crossings <= s.Crossings {
 			temp, err := sc.Copy()
 			if err != nil {
 				return nil, err
@@ -231,7 +239,7 @@ func pertubation(s *kpage.Solution) (*kpage.Solution, error) {
 	}
 
 	// Reassing the pages using the new layout
-	sc.AssignPages()
+	sc.AssignPages(^uint(0))
 
 	return sc, nil
 }
