@@ -74,7 +74,7 @@ func main() {
 	start := time.Now()
 
 	// Solve the problem
-	s, err := solve(r, out, pages)
+	s, err := solve(r, out, pages, maxIter)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func main() {
 	}
 }
 
-func solve(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
+func solve(in io.Reader, out io.Writer, k, maxIter int) (*kpage.Solution, error) {
 	var s *kpage.Solution
 
 	// Generate initial solution
@@ -131,12 +131,13 @@ func solve(in io.Reader, out io.Writer, k int) (*kpage.Solution, error) {
 
 		// ApplyAcceptanceCriterion
 		if sp.Crossings <= s.Crossings {
-			s = sp
 
 			// If iterator is set to 0 it may cause a loop because in late stages of the algorithm is is common that the best permutation has the same number of crossings
 			if sp.Crossings != s.Crossings {
 				i = 0
 			}
+
+			s = sp
 			// If found an optimal solution stop searching others
 			if s.Crossings == 0 {
 				break
